@@ -1,0 +1,7 @@
+
+max_v: 0.05   # m/s
+max_w: 0.1       # rad/s
+frame_rate: 8   # Hz
+graph_rate: 0.3333
+
+intrinsics_path: intrinsic/turtlebot4/intrinsics.npy

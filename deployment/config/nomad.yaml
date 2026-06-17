@@ -1,0 +1,23 @@
+# NoMaD model parameters consumed by deployment/src/utils.py:load_model().
+# Training-only fields (datasets, optimiser, wandb, schedulers) have been
+# stripped — they are not read at runtime.
+
+model_type: nomad
+vision_encoder: nomad_vint
+encoding_size: 256
+obs_encoder: efficientnet-b0
+
+mha_num_attention_heads: 4
+mha_num_attention_layers: 4
+mha_ff_dim_factor: 4
+down_dims: [64, 128, 256]
+cond_predict_scale: False
+
+num_diffusion_iters: 10
+
+context_type: temporal
+context_size: 3
+len_traj_pred: 8
+learn_angle: False
+
+image_size: [96, 96]

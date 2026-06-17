@@ -1,0 +1,212 @@
+<svg viewBox="0 0 1080 740" width="1080" height="740"
+     xmlns="http://www.w3.org/2000/svg"
+     font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#444"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#1565c0"/></marker>
+    <marker id="ap" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#6a1b9a"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#2e7d32"/></marker>
+    <marker id="ao" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#e65100"/></marker>
+    <marker id="agr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#757575"/></marker>
+    <marker id="asl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 Z" fill="#607d8b"/></marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1080" height="740" fill="#f8f9fa"/>
+
+  <!-- TITLE -->
+  <rect x="8" y="8" width="1064" height="48" rx="7" fill="#1a3a6b"/>
+  <text x="540" y="28" text-anchor="middle" font-size="14.5" font-weight="bold" fill="white" letter-spacing="0.4">VAULT: Vision-Aware Unified Layer for Safe Traversal</text>
+  <text x="540" y="46" text-anchor="middle" font-size="9.5" fill="#a8c8ee">Learned Navigation Policy + Reactive Obstacle Avoidance · TurtleBot 4 · ROS 2 · 30 Hz</text>
+
+  <!-- SENSOR ROW -->
+  <rect x="8" y="66" width="1064" height="54" rx="6" fill="#eceff1" stroke="#607d8b" stroke-width="1.4"/>
+  <text x="16" y="80" font-size="7.5" font-weight="bold" fill="#455a64" letter-spacing="1.2">SENSOR / INPUT LAYER</text>
+
+  <rect x="20" y="84" width="180" height="28" rx="4" fill="white" stroke="#78909c" stroke-width="1.1"/>
+  <text x="110" y="94" text-anchor="middle" font-size="9" font-weight="bold" fill="#263238">TurtleBot 4</text>
+  <text x="110" y="106" text-anchor="middle" font-size="7.5" fill="#546e7a">OAK-D Stereo Camera</text>
+
+  <rect x="214" y="84" width="162" height="28" rx="4" fill="white" stroke="#78909c" stroke-width="1.1"/>
+  <text x="295" y="94" text-anchor="middle" font-size="9" font-weight="bold" fill="#263238">RGB Image</text>
+  <text x="295" y="106" text-anchor="middle" font-size="7.5" fill="#546e7a">320 x 200 px · 30 Hz</text>
+
+  <rect x="390" y="84" width="150" height="28" rx="4" fill="white" stroke="#78909c" stroke-width="1.1"/>
+  <text x="465" y="94" text-anchor="middle" font-size="9" font-weight="bold" fill="#263238">Odometry</text>
+  <text x="465" y="106" text-anchor="middle" font-size="7.5" fill="#546e7a">Position · Heading</text>
+
+  <rect x="554" y="84" width="160" height="28" rx="4" fill="white" stroke="#78909c" stroke-width="1.1"/>
+  <text x="634" y="94" text-anchor="middle" font-size="9" font-weight="bold" fill="#263238">Camera Intrinsics K</text>
+  <text x="634" y="106" text-anchor="middle" font-size="7.5" fill="#546e7a">fx, fy, cx, cy</text>
+
+  <rect x="730" y="84" width="196" height="28" rx="4" fill="white" stroke="#9e9e9e" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="828" y="94" text-anchor="middle" font-size="9" font-weight="bold" fill="#757575">Goal Object Class</text>
+  <text x="828" y="106" text-anchor="middle" font-size="7.5" fill="#9e9e9e">optional · e.g. chair cls 56</text>
+
+  <!-- COL 1: PERCEPTION -->
+  <rect x="8" y="132" width="338" height="296" rx="7" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.8"/>
+  <text x="177" y="150" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#0d47a1" letter-spacing="0.4">PERCEPTION LAYER</text>
+
+  <rect x="20" y="160" width="314" height="64" rx="5" fill="white" stroke="#1976d2" stroke-width="1.3"/>
+  <text x="177" y="179" text-anchor="middle" font-size="10" font-weight="bold" fill="#1565c0">Depth-Anything-V2</text>
+  <text x="177" y="194" text-anchor="middle" font-size="8.5" fill="#555">Monocular metric depth estimation</text>
+  <text x="177" y="210" text-anchor="middle" font-size="8" fill="#1565c0">Depth map H x W (metres)</text>
+
+  <rect x="20" y="236" width="314" height="64" rx="5" fill="white" stroke="#1976d2" stroke-width="1.3"/>
+  <text x="177" y="255" text-anchor="middle" font-size="10" font-weight="bold" fill="#1565c0">Depth Processing</text>
+  <text x="177" y="270" text-anchor="middle" font-size="8.5" fill="#555">Calibration · filtering · polar binning</text>
+  <text x="177" y="286" text-anchor="middle" font-size="8" fill="#1565c0">distance_vector (72 bins, 89 deg FOV)</text>
+
+  <rect x="20" y="312" width="314" height="64" rx="5" fill="white" stroke="#1976d2" stroke-width="1.3"/>
+  <text x="177" y="331" text-anchor="middle" font-size="10" font-weight="bold" fill="#1565c0">Temporal Aggregator</text>
+  <text x="177" y="346" text-anchor="middle" font-size="8.5" fill="#555">Min-pool over T = 3 frames</text>
+  <text x="177" y="362" text-anchor="middle" font-size="8" fill="#1565c0">Smoothed d in R^72</text>
+
+  <line x1="177" y1="224" x2="177" y2="236" stroke="#1565c0" stroke-width="1.8" marker-end="url(#ab)"/>
+  <line x1="177" y1="300" x2="177" y2="312" stroke="#1565c0" stroke-width="1.8" marker-end="url(#ab)"/>
+
+  <!-- COL 2: POLICY -->
+  <rect x="358" y="132" width="362" height="296" rx="7" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="1.8"/>
+  <text x="539" y="150" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#4a148c" letter-spacing="0.4">LEARNED POLICY -- NoMaD</text>
+
+  <rect x="370" y="160" width="338" height="64" rx="5" fill="white" stroke="#7b1fa2" stroke-width="1.3"/>
+  <text x="539" y="179" text-anchor="middle" font-size="10" font-weight="bold" fill="#6a1b9a">ViNT Vision Encoder</text>
+  <text x="539" y="194" text-anchor="middle" font-size="8.5" fill="#555">EfficientNet-B0 + Transformer (5-frame ctx)</text>
+  <text x="539" y="210" text-anchor="middle" font-size="8" fill="#6a1b9a">Vision embedding z</text>
+
+  <rect x="370" y="236" width="338" height="64" rx="5" fill="white" stroke="#7b1fa2" stroke-width="1.3"/>
+  <text x="539" y="255" text-anchor="middle" font-size="10" font-weight="bold" fill="#6a1b9a">Diffusion Trajectory Head</text>
+  <text x="539" y="270" text-anchor="middle" font-size="8.5" fill="#555">Cond. UNet1D + DDPM · K = 10 steps</text>
+  <text x="539" y="286" text-anchor="middle" font-size="8" fill="#6a1b9a">8 samples x 40 timesteps x (dx, dy)</text>
+
+  <rect x="370" y="312" width="338" height="64" rx="5" fill="white" stroke="#7b1fa2" stroke-width="1.3"/>
+  <text x="539" y="331" text-anchor="middle" font-size="10" font-weight="bold" fill="#6a1b9a">Waypoint to Reference Bins</text>
+  <text x="539" y="346" text-anchor="middle" font-size="8.5" fill="#555">Denorm · cumsum · angular bin mapping</text>
+  <text x="539" y="362" text-anchor="middle" font-size="8" fill="#6a1b9a">Reference set R</text>
+
+  <line x1="539" y1="224" x2="539" y2="236" stroke="#6a1b9a" stroke-width="1.8" marker-end="url(#ap)"/>
+  <line x1="539" y1="300" x2="539" y2="312" stroke="#6a1b9a" stroke-width="1.8" marker-end="url(#ap)"/>
+
+  <!-- COL 3: OPTIONAL -->
+  <rect x="732" y="132" width="340" height="296" rx="7" fill="white" stroke="#9e9e9e" stroke-width="1.5" stroke-dasharray="7,4"/>
+  <text x="902" y="148" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#757575" letter-spacing="0.4">GOAL-ORIENTED MODE (optional)</text>
+
+  <rect x="744" y="158" width="316" height="64" rx="5" fill="#fafafa" stroke="#9e9e9e" stroke-width="1.1" stroke-dasharray="5,3"/>
+  <text x="902" y="177" text-anchor="middle" font-size="10" font-weight="bold" fill="#616161">YOLOv8-nano</text>
+  <text x="902" y="192" text-anchor="middle" font-size="8.5" fill="#757575">Real-time object detection on RGB</text>
+  <text x="902" y="208" text-anchor="middle" font-size="8" fill="#616161">Goal bins G</text>
+
+  <rect x="744" y="234" width="316" height="60" rx="5" fill="#fafafa" stroke="#9e9e9e" stroke-width="1.1" stroke-dasharray="5,3"/>
+  <text x="902" y="253" text-anchor="middle" font-size="10" font-weight="bold" fill="#616161">Bin Mapping</text>
+  <text x="902" y="268" text-anchor="middle" font-size="8.5" fill="#757575">Pixel bbox to angular bin range</text>
+  <text x="902" y="280" text-anchor="middle" font-size="8" fill="#9e9e9e">detection_vector (72 bins)</text>
+
+  <rect x="744" y="306" width="316" height="112" rx="5" fill="#fafafa" stroke="#9e9e9e" stroke-width="1.1" stroke-dasharray="5,3"/>
+  <text x="902" y="323" text-anchor="middle" font-size="10" font-weight="bold" fill="#616161">Navigation State Machine</text>
+  <rect x="754" y="332" width="86" height="26" rx="13" fill="#e8f5e9" stroke="#43a047" stroke-width="1.2"/>
+  <text x="797" y="349" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#2e7d32">EXPLORE</text>
+  <rect x="859" y="332" width="86" height="26" rx="13" fill="#fff8e1" stroke="#ffa000" stroke-width="1.2"/>
+  <text x="902" y="349" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#e65100">NAV_GOAL</text>
+  <rect x="964" y="332" width="86" height="26" rx="13" fill="#fce4ec" stroke="#e91e63" stroke-width="1.2"/>
+  <text x="1007" y="349" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#880e4f">REACHED</text>
+  <line x1="840" y1="345" x2="859" y2="345" stroke="#555" stroke-width="1" marker-end="url(#a)"/>
+  <line x1="945" y1="345" x2="964" y2="345" stroke="#555" stroke-width="1" marker-end="url(#a)"/>
+  <text x="849" y="341" text-anchor="middle" font-size="7" fill="#555">goal</text>
+  <text x="954" y="341" text-anchor="middle" font-size="7" fill="#555">near</text>
+  <text x="902" y="376" text-anchor="middle" font-size="8" fill="#757575">Merges G into VFH* on goal detection</text>
+  <text x="902" y="390" text-anchor="middle" font-size="8" fill="#757575">Publishes reached flag on arrival</text>
+
+  <line x1="902" y1="222" x2="902" y2="234" stroke="#9e9e9e" stroke-width="1.4" stroke-dasharray="4,2" marker-end="url(#agr)"/>
+  <line x1="902" y1="294" x2="902" y2="306" stroke="#9e9e9e" stroke-width="1.4" stroke-dasharray="4,2" marker-end="url(#agr)"/>
+
+  <!-- SENSOR TO COLUMN ARROWS -->
+  <path d="M295,112 L295,126 L177,126 L177,160" stroke="#1565c0" stroke-width="1.8" fill="none" marker-end="url(#ab)"/>
+  <rect x="196" y="119" width="54" height="13" rx="3" fill="#e3f2fd"/>
+  <text x="223" y="129" text-anchor="middle" font-size="7.5" fill="#1565c0">RGB</text>
+
+  <path d="M330,112 L330,126 L539,126 L539,160" stroke="#6a1b9a" stroke-width="1.8" fill="none" marker-end="url(#ap)"/>
+  <rect x="390" y="119" width="86" height="13" rx="3" fill="#f3e5f5"/>
+  <text x="433" y="129" text-anchor="middle" font-size="7.5" fill="#6a1b9a">RGB (5-frame ctx)</text>
+
+  <path d="M370,112 L370,120 L902,120 L902,158" stroke="#9e9e9e" stroke-width="1.3" fill="none" stroke-dasharray="6,4" marker-end="url(#agr)"/>
+  <rect x="820" y="113" width="62" height="12" rx="3" fill="white"/>
+  <text x="851" y="122" text-anchor="middle" font-size="7" fill="#9e9e9e">RGB (opt.)</text>
+
+  <path d="M465,112 L465,124 L539,124 L539,160" stroke="#6a1b9a" stroke-width="1.1" fill="none" stroke-dasharray="3,2" marker-end="url(#ap)"/>
+
+  <!-- COLUMN OUTPUTS TO VFH* -->
+  <path d="M177,428 L177,452 L148,452 L148,474" stroke="#1565c0" stroke-width="2.2" fill="none" marker-end="url(#ab)"/>
+  <rect x="72" y="445" width="80" height="13" rx="3" fill="#e3f2fd"/>
+  <text x="112" y="455" text-anchor="middle" font-size="8" fill="#1565c0" font-weight="bold">d in R^72</text>
+
+  <path d="M539,428 L539,452 L410,452 L410,474" stroke="#6a1b9a" stroke-width="2.2" fill="none" marker-end="url(#ap)"/>
+  <rect x="448" y="445" width="54" height="13" rx="3" fill="#f3e5f5"/>
+  <text x="475" y="455" text-anchor="middle" font-size="8" fill="#6a1b9a" font-weight="bold">R</text>
+
+  <path d="M902,428 L902,452 L720,452 L720,474" stroke="#9e9e9e" stroke-width="1.5" fill="none" stroke-dasharray="6,4" marker-end="url(#agr)"/>
+  <rect x="788" y="445" width="52" height="13" rx="3" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="814" y="455" text-anchor="middle" font-size="8" fill="#757575">G (opt.)</text>
+
+  <!-- VFH* LAYER -->
+  <rect x="8" y="474" width="1064" height="110" rx="7" fill="#fff8e1" stroke="#e65100" stroke-width="2"/>
+  <text x="16" y="490" font-size="7.5" font-weight="bold" fill="#bf360c" letter-spacing="1.2">VFH* REACTIVE SAFETY LAYER</text>
+
+  <rect x="18" y="498" width="238" height="74" rx="5" fill="white" stroke="#ef6c00" stroke-width="1.3"/>
+  <text x="137" y="516" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#e65100">1. Obstacle Map</text>
+  <text x="137" y="532" text-anchor="middle" font-size="8.5" fill="#555">Threshold d[b] &lt; 0.6 m</text>
+  <text x="137" y="547" text-anchor="middle" font-size="8.5" fill="#555">FOV padding +/- 10 bins</text>
+  <text x="137" y="562" text-anchor="middle" font-size="8" fill="#e65100">Binary occupancy O</text>
+
+  <rect x="266" y="498" width="238" height="74" rx="5" fill="white" stroke="#ef6c00" stroke-width="1.3"/>
+  <text x="385" y="516" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#e65100">2. Valley Detection</text>
+  <text x="385" y="532" text-anchor="middle" font-size="8.5" fill="#555">Free-space regions in O</text>
+  <text x="385" y="547" text-anchor="middle" font-size="8.5" fill="#555">Width filter >= 2R + 0.5 m</text>
+  <text x="385" y="562" text-anchor="middle" font-size="8" fill="#e65100">Candidate set C</text>
+
+  <rect x="514" y="498" width="290" height="74" rx="5" fill="white" stroke="#ef6c00" stroke-width="1.3"/>
+  <text x="659" y="516" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#e65100">3. Multi-Objective Optimisation</text>
+  <text x="659" y="532" text-anchor="middle" font-size="8.5" fill="#555">c(b) = u1*dist(b,R,G) + u2*dist(b,hdg) + u3*dist(b,bp)</text>
+  <text x="659" y="547" text-anchor="middle" font-size="8.5" fill="#555">u1=1.0  u2=1.0  u3=0.05</text>
+  <text x="659" y="562" text-anchor="middle" font-size="8" fill="#e65100">b* = argmin c(b)  to  waypoint (dx, dy)</text>
+
+  <rect x="814" y="498" width="250" height="74" rx="5" fill="white" stroke="#ef6c00" stroke-width="1.3"/>
+  <text x="939" y="516" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#e65100">4. Recovery FSM</text>
+  <text x="939" y="532" text-anchor="middle" font-size="8.5" fill="#555">No safe bin -&gt; REVERSE (8 cyc)</text>
+  <text x="939" y="547" text-anchor="middle" font-size="8.5" fill="#555">REVERSE -&gt; TURN (6 cyc)</text>
+  <text x="939" y="562" text-anchor="middle" font-size="8" fill="#e65100">b*, was_modified flag</text>
+
+  <line x1="256" y1="535" x2="266" y2="535" stroke="#e65100" stroke-width="1.8" marker-end="url(#ao)"/>
+  <line x1="504" y1="535" x2="514" y2="535" stroke="#e65100" stroke-width="1.8" marker-end="url(#ao)"/>
+  <line x1="804" y1="535" x2="814" y2="535" stroke="#e65100" stroke-width="1.8" marker-end="url(#ao)"/>
+
+  <!-- CONTROL LAYER -->
+  <rect x="295" y="600" width="490" height="68" rx="7" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.8"/>
+  <text x="303" y="615" font-size="7.5" font-weight="bold" fill="#1b5e20" letter-spacing="1.2">CONTROL LAYER</text>
+
+  <rect x="307" y="622" width="212" height="38" rx="5" fill="white" stroke="#388e3c" stroke-width="1.2"/>
+  <text x="413" y="637" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#2e7d32">PD Controller</text>
+  <text x="413" y="652" text-anchor="middle" font-size="8" fill="#555">(dx, dy) to v, omega</text>
+
+  <rect x="533" y="622" width="240" height="38" rx="5" fill="white" stroke="#388e3c" stroke-width="1.2"/>
+  <text x="653" y="637" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#2e7d32">Velocity Command</text>
+  <text x="653" y="652" text-anchor="middle" font-size="8" fill="#555">v [m/s] · omega [rad/s] @ 30 Hz</text>
+
+  <line x1="519" y1="641" x2="533" y2="641" stroke="#2e7d32" stroke-width="1.8" marker-end="url(#ag)"/>
+
+  <!-- VFH* to Control -->
+  <path d="M540,584 L540,596 L413,596 L413,622" stroke="#2e7d32" stroke-width="2.2" fill="none" marker-end="url(#ag)"/>
+  <rect x="452" y="589" width="56" height="13" rx="3" fill="#e8f5e9"/>
+  <text x="480" y="599" text-anchor="middle" font-size="8" fill="#2e7d32" font-weight="bold">waypoint</text>
+
+  <!-- OUTPUT ROW -->
+  <rect x="8" y="684" width="1064" height="42" rx="6" fill="#eceff1" stroke="#607d8b" stroke-width="1.4"/>
+  <text x="540" y="700" text-anchor="middle" font-size="9" font-weight="bold" fill="#37474f">ROS 2 OUTPUT</text>
+  <text x="540" y="716" text-anchor="middle" font-size="8.5" fill="#546e7a">/robot2/cmd_vel · /robot2/waypoint · /robot2/trajectory_viz · /vfh/depth_markers</text>
+
+  <line x1="540" y1="668" x2="540" y2="684" stroke="#607d8b" stroke-width="2" marker-end="url(#asl)"/>
+
+  <!-- Feedback loop -->
+  <path d="M773,705 L1054,705 L1054,93 L942,93" stroke="#607d8b" stroke-width="1.4" fill="none" stroke-dasharray="7,4" marker-end="url(#asl)"/>
+  <text x="1067" y="406" text-anchor="middle" font-size="8" fill="#607d8b" transform="rotate(90,1067,406)">odometry feedback</text>
+
+</svg>

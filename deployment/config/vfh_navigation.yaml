@@ -1,0 +1,5 @@
+
+inference_rate_hz:   4      
+control_rate_hz:     20     
+watchdog_timeout_s:  1.0   
+num_executor_threads: 4     

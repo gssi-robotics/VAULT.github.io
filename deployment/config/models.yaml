@@ -1,0 +1,23 @@
+vint:
+  config_path: "/home/<USER>/VfhPlus/train/config/vint.yaml"
+  ckpt_path: "/home/<USER>/VfhPlus/deployment/model_weights/vint.pth"
+
+late_fusion:
+  config_path: "../../train/config/late_fusion.yaml"
+  ckpt_path: "../model_weights/vint_late_fusion.pth"
+
+gnm:
+  config_path: "../../train/config/gnm.yaml"
+  ckpt_path: "../model_weights/gnm_large.pth"
+
+nomad:
+  config_path: "/home/<USER>/VfhPlus/deployment/config/nomad.yaml"
+  ckpt_path: "/home/<USER>/VfhPlus/deployment/model_weights/nomad.pth"
+
+
+
+yolo:
+  model: /home/<USER>/yolov8n.pt             
+  confidence: 0.35                          
+  classes: [56]                              
+  offline: true       

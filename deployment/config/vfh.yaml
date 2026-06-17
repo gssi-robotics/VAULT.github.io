@@ -1,0 +1,30 @@
+
+robot_radius: 0.18
+num_bins: 72
+fov_deg: 89.0
+fov_padding_bins: 10          
+
+safety_threshold: 0.60
+max_sensing_range: 3.0
+vertical_margin: 0.10
+floor_margin: 0.10  
+safety_margin: 0.60
+
+temporal_window: 3 
+s_max: 10
+
+mu1: 3.0   #target
+mu2: 1.0    #heading      #for narrow corridor 1.0 , 1.0 , 0.05
+mu3: 1.0   #prev-bin
+
+speed_reduction: 1.0
+num_vfh_waypoints: 5
+vfh_waypoint_index: 0
+recovery_reverse_cycles: 1
+recovery_turn_cycles: 2
+
+
+depth_encoder: "vits"
+depth_max_depth: 20
+depth_scale: 0.9 
+depth_weights:  "/home/<USER>/VfhPlus/deployment/model_weights/depth_anything_v2_metric_hypersim_vits.pth"

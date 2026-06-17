@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAULT — Vision-Aware Unified Layer for safe Traversal</title>
+  <meta name="description" content="End-to-end learned navigation policies achieve strong goal-directed behavior from raw visual observations, but they do not provide explicit runtime checks on the safety of proposed actions. Our answer is that a robot should rely on learning for nominal goal-directed behavior and invoke reasoning when a proposed action may violate local safety constraints. We present \nameNoSpace, a vision-based runtime safety framework that uses monocular depth to verify actions proposed by a learned navigation policy and to override them only when local safety constraints are violated.
+    We instantiate \name by combining NoMaD, Depth Anything V2, and $VFH^*$ so that learned goal-directed behavior is preserved when safe and replaced with a safer direction when necessary. We implement the framework on a TurtleBot4 under ROS2 Humble and validate it againts challenging environments.
+    Experiments in unseen environments show that VAULT improves runtime safety over learned-only and reactive-only baselines while retaining configurable, goal-directed navigation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Design tokens — elegant ink & champagne ── */
+    :root {
+      --bg:          #0c0c12;
+      --surface:     #15151e;
+      --surface2:    #1c1c27;
+      --border:      #2b2b38;
+      --accent:      #c9a86b;     /* champagne gold */
+      --accent2:     #e6cf9d;     /* warm light gold */
+      --green:       #9ab89b;     /* sage */
+      --text:        #ece8df;     /* warm ivory */
+      --muted:       #8c8a99;
+      --font:        'Inter', system-ui, sans-serif;
+      --serif:       'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+      --mono:        'JetBrains Mono', monospace;
+      --radius:      10px;
+      --radius-lg:   16px;
+      --max:         1160px;
+      --trans:       .25s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font);
+           line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    img, video { max-width: 100%; display: block; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    .wrap  { width: 92%; max-width: var(--max); margin: 0 auto; }
+    section { padding: 88px 0; }
+    .label {
+      display: inline-block;
+      font-size: .72rem; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: .9rem;
+    }
+    h2 { font-family: var(--serif); font-size: clamp(2rem,4vw,2.9rem);
+         font-weight: 600; letter-spacing: .005em;
+         line-height: 1.15; margin-bottom: 1rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: .5rem; }
+    p  { color: var(--muted); max-width: 72ch; }
+    hr.div { border: none; border-top: 1px solid var(--border); }
+
+    /* ── VAULT — signature treatment ── */
+    .vault-name {
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 600;
+      letter-spacing: .03em;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, #f3dfb6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 99;
+      padding: 1rem 0;
+      transition: background var(--trans), border-color var(--trans);
+    }
+    nav.scrolled {
+      background: rgba(13,15,20,.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.45rem; font-weight: 600;
+      letter-spacing: .04em;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, #f3dfb6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-size: .85rem; color: var(--muted); font-weight: 500;
+                   transition: color var(--trans); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      position: relative; overflow: hidden;
+      padding-top: 80px;
+    }
+    .hero-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(201,168,107,.09) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 35% at 20% 60%, rgba(154,184,155,.05) 0%, transparent 60%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 820px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .75rem; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 28px; height: 1px;
+      background: var(--accent);
+    }
+    .hero-title { font-family: var(--serif);
+                  font-size: clamp(2.6rem,6.2vw,4.6rem); font-weight: 600;
+                  line-height: 1.05; letter-spacing: .005em; margin-bottom: 1.25rem; }
+    .hero-title em { font-style: italic; color: var(--accent); }
+    .hero-title .vault-name { font-size: 1.05em; }
+    .hero-sub { font-size: clamp(.95rem,2vw,1.15rem); color: var(--muted);
+                margin-bottom: 2.5rem; max-width: 60ch; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: .65rem; margin-bottom: 2.5rem; }
+    .badge {
+      padding: .35rem .9rem; border-radius: 50px;
+      font-size: .75rem; font-weight: 600; letter-spacing: .05em;
+      border: 1px solid var(--border);
+    }
+    .badge-blue  { border-color: rgba(201,168,107,.4); color: var(--accent2); background: rgba(201,168,107,.08); }
+    .badge-green { border-color: rgba(154,184,155,.4); color: #b8d2b9; background: rgba(154,184,155,.08); }
+    .badge-amber { border-color: rgba(230,207,157,.4); color: var(--accent2); background: rgba(230,207,157,.08); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .7rem 1.6rem; border-radius: 50px;
+      font-size: .875rem; font-weight: 600; letter-spacing: .02em;
+      transition: all var(--trans);
+    }
+    .btn-primary { background: var(--accent); color: #1a1408; }
+    .btn-primary:hover { background: var(--accent2); transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(201,168,107,.35); text-decoration: none; }
+    .btn-outline { border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent);
+      transform: translateY(-2px); text-decoration: none; }
+
+    /* ── Abstract card ── */
+    .abstract-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 2.5rem;
+      border-left: 3px solid var(--accent);
+    }
+    .abstract-card p { max-width: 100%; color: var(--text); line-height: 1.8; }
+
+    /* ── Method pipeline ── */
+    .pipeline {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; padding-bottom: .5rem;
+      margin: 2.5rem 0;
+    }
+    .pipe-box {
+      flex-shrink: 0; min-width: 160px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem 1rem;
+      text-align: center;
+    }
+    .pipe-box .icon {
+      font-size: 1.6rem; margin-bottom: .4rem;
+    }
+    .pipe-box h4 { font-size: .85rem; color: var(--text); margin-bottom: .25rem; }
+    .pipe-box p  { font-size: .75rem; color: var(--muted); max-width: 100%; }
+    .pipe-arrow {
+      flex-shrink: 0; width: 40px; text-align: center;
+      color: var(--muted); font-size: 1.2rem;
+    }
+    .highlight-box { border-color: rgba(201,168,107,.5);
+      box-shadow: 0 0 0 1px rgba(201,168,107,.2), 0 4px 20px rgba(201,168,107,.1); }
+    .highlight-box h4 { color: var(--accent); }
+
+    /* ── Comparison row ── */
+    .comparison-wrap {
+      background: #000; border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .comparison-wrap video { width: 100%; display: block; }
+    .comparison-wrap .placeholder {
+      aspect-ratio: 16/3.5;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem;
+      background: linear-gradient(135deg, #0d111a 0%, #111827 100%);
+      color: var(--muted); font-size: .85rem;
+    }
+    .comparison-wrap .placeholder svg { width: 40px; height: 40px; opacity: .3; }
+
+    /* Column labels under comparison video */
+    .col-labels {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      border-top: 1px solid var(--border);
+    }
+    .col-label {
+      padding: .85rem 1.25rem;
+      font-size: .8rem; font-weight: 600; letter-spacing: .06em;
+      text-align: center; text-transform: uppercase;
+    }
+    .col-label:not(:last-child) { border-right: 1px solid var(--border); }
+    .col-label.vfh { color: var(--accent); }
+    .col-label.nomad { color: var(--muted); }
+    .col-label.care  { color: var(--muted); }
+
+    /* ── Video pair grid (main + camera) ── */
+    .pair-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+    }
+    .video-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .video-card video {
+      width: 100%; display: block;
+      background: #000;
+    }
+    .video-card .vid-placeholder {
+      aspect-ratio: 16/9;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: .75rem;
+      background: linear-gradient(135deg, #0d111a, #111827);
+      color: var(--muted); font-size: .8rem;
+    }
+    .video-card .vid-placeholder svg { width: 32px; height: 32px; opacity: .25; }
+    .video-card-label {
+      padding: .85rem 1.1rem;
+      font-size: .75rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .dot-amber { background: var(--accent2); }
+
+    /* Demo section rows */
+    .demo-row { margin-bottom: 3.5rem; }
+    .demo-row h3 {
+      font-size: 1rem; font-weight: 600; color: var(--text);
+      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .algo-badge {
+      font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; padding: .2rem .6rem;
+      border-radius: 4px;
+    }
+    .ab-vfh   { background: rgba(201,168,107,.15); color: var(--accent2); border: 1px solid rgba(201,168,107,.3); }
+    .ab-nomad { background: rgba(154,184,155,.12); color: #b8d2b9; border: 1px solid rgba(154,184,155,.25); }
+    .ab-care  { background: rgba(230,207,157,.12); color: var(--accent2); border: 1px solid rgba(230,207,157,.25); }
+    .ab-vault { background: rgba(201,168,107,.18); color: var(--accent2); border: 1px solid rgba(201,168,107,.4); }
+
+    /* ── Code block ── */
+    .code-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      font-family: var(--mono); font-size: .82rem;
+      color: #b0c4e8; overflow-x: auto; line-height: 1.7;
+      margin: 1.25rem 0;
+    }
+    .code-block .comment { color: #4a5568; }
+    .code-block .cmd     { color: var(--green); }
+    .code-block .flag    { color: var(--accent2); }
+
+    /* ── Stats ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.75rem 1.5rem;
+      text-align: center;
+    }
+    .stat-num  { font-size: 2.4rem; font-weight: 800;
+                 color: var(--accent); line-height: 1; margin-bottom: .35rem; }
+    .stat-desc { font-size: .8rem; color: var(--muted);
+                 text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ── Notice ── */
+    .notice {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: var(--surface2); border: 1px dashed var(--border);
+      border-radius: var(--radius); padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .notice svg { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; margin-top: .15rem; }
+    .notice p   { font-size: .85rem; color: var(--muted); max-width: 100%; }
+    .notice p strong { color: var(--text); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+    }
+    .foot-inner {
+      display: flex; flex-wrap: wrap; align-items: center;
+      justify-content: space-between; gap: 1.5rem;
+    }
+    .foot-logo { font-family: var(--serif); font-style: italic;
+                 font-size: 1.35rem; font-weight: 600; letter-spacing: .04em;
+                 background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 60%, #f3dfb6 100%);
+                 -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .foot-logo span { color: var(--accent); }
+    .foot-links { display: flex; gap: 1.75rem; }
+    .foot-links a { font-size: .82rem; color: var(--muted);
+                    transition: color var(--trans); }
+    .foot-links a:hover { color: var(--accent); text-decoration: none; }
+    .foot-copy { font-size: .78rem; color: var(--muted); }
+
+    /* ── Scroll reveal ── */
+    .reveal { opacity: 0; transform: translateY(22px);
+              transition: opacity .6s ease, transform .6s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .pipeline { flex-wrap: wrap; }
+      .pair-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .col-labels { grid-template-columns: 1fr; }
+      .col-label:not(:last-child) { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav id="nav">
+  <div class="wrap nav-inner">
+    <span class="nav-logo">VAULT</span>
+    <!-- nav-logo already styled with the signature treatment -->
+    <ul class="nav-links">
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#method">Method</a></li>
+      <!-- <li><a href="#results">Results</a></li> -->
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#demos">Demos</a></li>
+      <li><a href="#code">Code</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero" id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="wrap">
+    <div class="hero-content">
+      <div class="hero-eyebrow">Reactive Safe Navigation</div>
+      <h1 class="hero-title">
+        <span class="vault-name">VAULT</span>: <em>V</em>ision-<em>A</em>ware <em>U</em>nified <em>L</em>ayer for safe <em>T</em>raversal
+      </h1>
+      <p class="hero-sub">
+        A two-layer runtime safety framework that combines a learned navigation
+        policy (NoMaD) with a reactive look-ahead obstacle avoider (VFH*)
+        on top of monocular metric depth (Depth-Anything-V2) in a polar coordinate system.
+      </p>
+      <!-- <div class="badge-row">
+        <span class="badge badge-blue">NoMaD</span>
+        <span class="badge badge-blue">VFH*</span>
+        <span class="badge badge-green">Depth-Anything-V2</span>
+        <span class="badge badge-amber">YOLOv8</span>
+        <span class="badge badge-blue">ROS 2 Humble</span>
+        <span class="badge badge-green">TurtleBot 4</span>
+      </div> -->
+      <div class="btn-row">
+        <a href="https://github.com/MahsaNikmard/VAULT.github.io" class="btn btn-primary" target="_blank">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          View on GitHub
+        </a>
+        <!-- <a href="#results" class="btn btn-outline">Watch Results ↓</a> -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div" />
+
+<!-- ── Abstract ── -->
+<section id="abstract">
+  <div class="wrap">
+    <span class="label reveal">Abstract</span>
+    <!-- <h2 class="reveal">Abstract</h2> -->
+    <div class="abstract-card reveal">
+      <p>
+        End-to-end learned navigation policies achieve strong goal-directed behavior from raw visual observations, but they do not provide explicit runtime checks on the safety of proposed actions. Our answer is that a robot should rely on learning for nominal goal-directed behavior and invoke reasoning when a proposed action may violate local safety constraints.
+        We present <span class="vault-name">VAULT</span>, a vision-based runtime safety framework that uses monocular depth to verify actions proposed by a learned navigation policy and to override them only when local safety constraints are violated.
+        We instantiate <span class="vault-name">VAULT</span> by combining NoMaD, Depth Anything V2, and VFH* so that learned goal-directed behavior is preserved when safe and replaced with a safer direction when necessary. We implement the framework on a TurtleBot4 under ROS2 Humble and validate it against some challenging scenarios. Experiments in unseen environments show that <span class="vault-name">VAULT</span> improves runtime safety over learned-only and reactive-only baselines while retaining configurable, goal-directed navigation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="div" />
+
+<!-- ── Method ── -->
+<section id="method">
+  <div class="wrap">
+    <span class="label reveal">Architecture</span>
+    <h2 class="reveal">Two-layer pipeline</h2>
+    <p class="reveal" style="margin-bottom:.5rem;">
+      The system runs in a continuous loop: Depth-Anything-V2 estimates per-frame
+      metric depth from the OAK-D camera, VFH* builds a polar obstacle histogram
+      and selects a safe heading bin, while NoMaD generates a trajectory that is
+      then projected onto the chosen bin for the final velocity command.
+    </p>
+
+    <div class="pipeline reveal">
+      <!-- OAK-D -->
+      <div class="pipe-box">
+        <div class="icon">📷</div>
+        <h4>OAK-D Camera</h4>
+        <p>RGB stream<br/>/robot2/image_raw</p>
+      </div>
+      <div class="pipe-arrow">→</div>
+
+      <!-- DA2 -->
+      <div class="pipe-box">
+        <div class="icon">🔭</div>
+        <h4>Depth-Anything-V2</h4>
+        <p>Monocular metric depth (ViT-S Hypersim)</p>
+      </div>
+      <div class="pipe-arrow">→</div>
+
+      <!-- VFH* -->
+      <div class="pipe-box highlight-box">
+        <div class="icon">🧭</div>
+        <h4>VFH*</h4>
+        <p>Polar histogram<br/>→ safe bin selection</p>
+      </div>
+      <div class="pipe-arrow">⊕</div>
+
+      <!-- NoMaD -->
+      <div class="pipe-box highlight-box">
+        <div class="icon">🧠</div>
+        <h4>NoMaD Policy</h4>
+        <p>Goal-conditioned trajectory generation</p>
+      </div>
+      <div class="pipe-arrow">→</div>
+
+      <!-- PD controller -->
+      <div class="pipe-box">
+        <div class="icon">🤖</div>
+        <h4>PD Controller</h4>
+        <p>cmd_vel →<br/>TurtleBot 4</p>
+      </div>
+    </div>
+
+    <!-- Modes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem;" class="reveal">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;">
+        <h3 style="color:var(--green);margin-bottom:.6rem;">🗺 Exploration mode</h3>
+        <p style="font-size:.875rem;">
+          Pure <strong style="color:var(--text);">NoMaD + VFH*</strong> loop — the robot
+          explores autonomously without a predefined goal. NoMaD samples subgoal
+          waypoints while VFH* continuously guards against obstacles.
+        </p>
+        <div class="code-block" style="margin-top:1rem;font-size:.78rem;">
+          <span class="cmd">./run_exploration.sh</span>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.75rem;">
+        <h3 style="color:var(--accent);margin-bottom:.6rem;">🎯 Goal-oriented mode</h3>
+        <p style="font-size:.875rem;">
+          Adds <strong style="color:var(--text);">YOLOv8</strong> on top of the exploration
+          stack. Once the target class is detected the navigator locks onto it and
+          manoeuvres around dynamic obstacles to reach it.
+        </p>
+        <div class="code-block" style="margin-top:1rem;font-size:.78rem;">
+          <span class="cmd">./run_navigation.sh</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <hr class="div" /> -->
+
+
+<!-- ── Results — Dynamic Corridor Comparison ── -->
+<!-- <section id="results">
+  <div class="wrap">
+    <span class="label reveal">Results</span>
+    <h2 class="reveal">Dynamic Corridor Comparison</h2>
+    <p class="reveal" style="margin-bottom:2.5rem;">
+      All three methods navigate a dynamic corridor with moving obstacles. Videos
+      are time-aligned: the VFH+ column is fast-forwarded to match real elapsed time.
+      <span class="vault-name">VAULT</span> (VFH+) reaches the goal reliably while NoMaD-only and CARE require
+      significantly more time or fail to avoid dynamic agents.
+    </p>
+    Three-column individual fallback
+    <!-- <p class="reveal" style="margin-top:2rem;font-size:.85rem;">
+      Alternatively, upload the individual videos and embed them side-by-side:
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1rem;" class="reveal">
+      <div class="video-card">
+        <video controls muted loop playsinline src="videos/dynamics.mp4"></video>
+      </div>
+
+    </div>
+</section> --> 
+
+<hr class="div" />
+
+
+<section id="introduction">
+  <div class="wrap">
+    <span class="label reveal">Introduction</span>
+    <h2 class="reveal"><span class="vault-name">VAULT</span> in Action</h2>
+    <div class="reveal" style="max-width:820px;margin:2rem auto 0;">
+      <div class="video-card">
+        <video controls muted loop playsinline src="videos/Introduction_vault.mp4"></video>
+        <div class="video-card-label"><span class="dot"></span> Introduction</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div" />
+
+<!-- ── Exploration views — side by side ── -->
+<section id="exploration">
+  <div class="wrap">
+    <span class="label reveal">NoMaD Vs. CARE vs. <span class="vault-name">VAULT</span></span>
+    <!-- <h2 class="reveal">Image View &amp; Polar Rays</h2> -->
+    <div class="pair-grid reveal" style="margin-top:2rem;">
+      <div class="video-card">
+        <video controls muted loop playsinline src="videos/dynamics.mp4"></video>
+        <div class="video-card-label"><span class="dot"></span> Dynamic Obstacles</div>
+      </div>
+      <div class="video-card">
+        <video controls muted loop playsinline src="videos/baseline_exploration.mp4"></video>
+        <div class="video-card-label"><span class="dot dot-amber"></span> NoMaD Vs. CARE In The LAB</div>
+      </div>
+    </div>
+  </div>
+</section>
+    <div class="notice reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <!-- <p>
+        <strong>To activate the videos:</strong> run <code>process_videos.sh</code> to
+        process and convert all uploads, then place the output files in a <code>videos/</code>
+        folder in this repo. Finally, uncomment the <code>&lt;video&gt;</code> tags and
+        remove the placeholder <code>&lt;div&gt;</code> elements above.
+      </p> -->
+    </div>
+  </div>
+</section>
+
+<hr class="div" />
+
+<!-- ── Code & Setup ── -->
+<section id="code">
+  <div class="wrap">
+    <span class="label reveal">Code</span>
+    <h2 class="reveal">Quick Start</h2>
+    <p class="reveal" style="margin-bottom:2rem;">
+      The full deployment code is open-source on GitHub. Requires ROS 2 Humble,
+      a CUDA-capable GPU, and a TurtleBot 4 with the OAK-D camera. The Model is able to be adopted  to any robot with corresponding camera intrinstics. 
+    </p>
+
+    <div class="code-block reveal">
+      <span class="comment"># 1. Clone the repo</span><br>
+      <span class="cmd">git clone</span> https://github.com/MahsaNikmard/VAULT.github.io VAULT<br>
+      <span class="cmd">cd</span>  VAULT<br><br>
+
+      <span class="comment"># 2. Clone Depth-Anything-V2 alongside</span><br>
+      <span class="cmd">git clone</span> https://github.com/DepthAnything/Depth-Anything-V2.git<br><br>
+
+      <span class="comment"># 3. Create conda env</span><br>
+      <span class="cmd">conda create</span> <span class="flag">-n</span> VAULT python=3.10<br>
+      <span class="cmd">conda activate</span> VAULT<br>
+      <span class="cmd">pip install</span> torch torchvision diffusers efficientnet-pytorch \<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ultralytics opencv-python pyyaml matplotlib pillow<br><br>
+
+      <span class="comment"># 4. Fix config paths</span><br>
+      <span class="cmd">grep</span> <span class="flag">-rl</span> "&lt;USER&gt;" deployment/config | <span class="cmd">xargs sed</span> <span class="flag">-i</span> "s|&lt;USER&gt;|$USER|g"<br><br>
+
+      <span class="comment"># 5. Run exploration</span><br>
+      <span class="cmd">./run_exploration.sh</span><br><br>
+
+      <span class="comment"># 6. Run goal-oriented navigation</span><br>
+      <span class="cmd">./run_navigation.sh</span>
+    </div>
+
+    <div style="margin-top:1.5rem;" class="reveal">
+      <a href="https://github.com/MahsaNikmard/VAULT.github.io" class="btn btn-primary" target="_blank">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.167 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+        View Source on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="wrap foot-inner">
+    <span class="foot-logo">VAULT</span>
+    <nav class="foot-links">
+      <a href="https://github.com/MahsaNikmard/VAULT.github.io" target="_blank">GitHub</a>
+      <a href="#abstract">Abstract</a>
+      <!-- <a href="#results">Results</a> -->
+      <a href="#code">Code</a>
+    </nav>
+    <span class="foot-copy"><span class="vault-name">VAULT</span> · MIT License</span>
+  </div>
+</footer>
+
+<script>
+  // Sticky nav
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  // Scroll reveal
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+  els.forEach(el => io.observe(el));
+</script>
+</body>
+</html>

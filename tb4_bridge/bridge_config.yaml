@@ -1,0 +1,92 @@
+
+robot_namespace: "/Turtlebot_02493"
+domain_id: 3
+
+
+topics:
+
+  - from: "/Turtlebot_02493/tf"
+    to: "/tf"
+    msg_type: "tf2_msgs/msg/TFMessage"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  - from: "/Turtlebot_02493/tf_static"
+    to: "/tf_static"
+    msg_type: "tf2_msgs/msg/TFMessage"
+    qos_reliability: "reliable"
+    qos_durability: "transient_local"
+    direction: "from_robot"
+
+  # === Sensors (CogNAV + CARE) ===
+  - from: "/Turtlebot_02493/oakd/rgb/preview/image_raw"
+    to: "/oakd/rgb/preview/image_raw"
+    msg_type: "sensor_msgs/msg/Image"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  - from: "/Turtlebot_02493/oakd/rgb/preview/camera_info"
+    to: "/oakd/rgb/preview/camera_info"
+    msg_type: "sensor_msgs/msg/CameraInfo"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  - from: "/Turtlebot_02493/stereo/depth"
+    to: "/stereo/depth"
+    msg_type: "sensor_msgs/msg/Image"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  - from: "/Turtlebot_02493/scan"
+    to: "/scan"
+    msg_type: "sensor_msgs/msg/LaserScan"
+    qos_reliability: "reliable"    
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  # === Odometry ===
+  - from: "/Turtlebot_02493/odom"
+    to: "/odom"
+    msg_type: "nav_msgs/msg/Odometry"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  # === IMU ===
+  - from: "/Turtlebot_02493/imu"
+    to: "/imu"
+    msg_type: "sensor_msgs/msg/Imu"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  - from: "/Turtlebot_02493/robot_description"
+    to: "/robot_description"
+    msg_type: "std_msgs/msg/String"
+    qos_reliability: "reliable"
+    qos_durability: "transient_local"
+    direction: "from_robot"
+
+  - from: "/cmd_vel"
+    to: "/Turtlebot_02493/cmd_vel"
+    msg_type: "geometry_msgs/msg/Twist"
+    qos_reliability: "reliable"
+    qos_durability: "volatile"
+    direction: "to_robot"
+  - from: "/Turtlebot_02493/hazard_detection"
+    to: "/hazard_detection"
+    msg_type: "irobot_create_msgs/msg/HazardDetectionVector"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
+
+  - from: "/Turtlebot_02493/joint_states"
+    to: "/joint_states"
+    msg_type: "sensor_msgs/msg/JointState"
+    qos_reliability: "best_effort"
+    qos_durability: "volatile"
+    direction: "from_robot"
